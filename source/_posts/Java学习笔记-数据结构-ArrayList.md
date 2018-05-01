@@ -16,6 +16,7 @@ tags:
 ```
 看一下涉及到的成员变量
 transient 关键字先不去管它，我们看到，调用ArrayList的无参构造方法时，实际是把一个空的Object数组赋给了elementData。
+<!--more-->
 ``` java
     transient Object[] elementData; // non-private to simplify nested class access
 

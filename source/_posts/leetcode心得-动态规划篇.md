@@ -20,7 +20,7 @@ For example, given
 > s ="leetcode",
 > dict =["leet", "code"]. 
 > Return true because "leetcode" can be segmented as"leet code". 
-
+<!--more-->
 ### 解题过程
 对一个长度为(n + 1)的字符串s，如果知道s.substring(0, i)（其中0 < i <= n）是否可分，那么怎么确定这个字符串是否可分呢？
 
