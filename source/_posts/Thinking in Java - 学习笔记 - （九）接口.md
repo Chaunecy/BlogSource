@@ -1,5 +1,5 @@
 ---
-title: nine
+title: Thinking in Java - 学习笔记 - （九）接口
 date: 2018-05-01 19:03:46
 tags:
 	- Thinking in Java
@@ -18,6 +18,8 @@ Java提供一个叫做<font face="kaiti">抽象方法</font>（相当于C++的�
 ``` java
     abstract void f();
 ```
+
+<!-- more -->
 
 包含抽象方法的类叫做抽象类。如果一个类包含一个或多个抽象方法，该类必须被限定为抽象的。（否则，编译器就会报错）
 

@@ -1,5 +1,5 @@
 ---
-title: hhh
+title: Thinking in Java - 学习笔记 - （三）操作符
 date: 2018-05-01 17:10:32
 tags:
     - Thinking in Java
@@ -13,6 +13,9 @@ tags:
 --
 
 ==和!=比较的是对象的引用。对象的内容的比较用equals()方法，但是equals()的默认行为是比较引用，可以通过覆盖（override）改变其行为。
+
+<!-- more -->
+
 
 移位操作符
 --

@@ -1,5 +1,5 @@
 ---
-title: he
+title: Thinking in Java - 学习笔记 - （七）复用类
 date: 2018-05-01 18:44:27
 tags:
 	- Thinking in Java
@@ -13,6 +13,8 @@ tags:
 
 - 方法二，继承：采用现有类的形式并在其中添加新代码。
 
+
+<!-- more -->
 
 继承
 ------
