@@ -1,7 +1,8 @@
-﻿---
+---
 title: Java学习笔记-数据结构-ArrayList
 data: 2018-04-30 15:39:08
-categories: 程序人生
+categories: 
+	- 程序人生
 tags: 
     - 数据结构与算法
     - Java
@@ -56,7 +57,7 @@ transient 关键字先不去管它，我们看到，调用ArrayList的无参构�
 
 - 如果当前elementData为空数组，返回DEFAULT_CAPACITY与minCapacity中较大的一个
 - 否则返回minCapacity
- 
+
 ``` java
     private void ensureCapacityInternal(int minCapacity) {
         ensureExplicitCapacity(calculateCapacity(elementData, minCapacity));
