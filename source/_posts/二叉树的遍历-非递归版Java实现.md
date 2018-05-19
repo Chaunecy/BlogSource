@@ -175,7 +175,9 @@ public class Solution {
 ------------------------
 
 >基于队列（Queue）实现的自上而下、从左到右按层遍历二叉树
->记录每一层节点的个数n，并出栈n次，这样就可以遍历完一层。
+>
+>记录每一层节点的个数n，并出列n次，出列的同时把子结点压入队列。
+>这样就可以遍历完一层，同时读入下一层。
 ``` java
    public ArrayList<Integer> levelTraversal(TreeNode root) {
         if (root == null) {
@@ -204,3 +206,6 @@ public class Solution {
         return ans;
     }
 ```
+
+
+

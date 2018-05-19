@@ -1,3 +1,12 @@
+---
+title: Java学习笔记-数据结构-ArrayList
+data: 2018-04-30 15:39:08
+categories: 
+	- 源码分析
+tags: 
+    - 数据结构与算法
+    - Java
+---
 ## 怎么理解ArrayList
 
 一个实现**List**接口的可扩展的数组（Resizable-array）。与**Vector**大致上相同，但是不保证线程安全。
@@ -237,7 +246,7 @@
 ```java
     public E set(int index, E element) {
         rangeCheck(index);
-	    //方法名与字段名取一样的不会很难受吗？
+        //方法名与字段名取一样的不会很难受吗？
         E oldValue = elementData(index);
         elementData[index] = element;
         return oldValue;
@@ -259,7 +268,7 @@
 ### 是否存在某元素
 
 ```java
-	// 是否存在此元素
+    // 是否存在此元素
 	public boolean contains(Object o) {
         return indexOf(o) >= 0;
     }
@@ -268,8 +277,8 @@
 ### 获取某元素的下标
 
 ``` java
-	// 从前往后查询。返回元素的下标，-1表示没有。
-	// ！！equals方法要自己实现即Override，不然默认比较对象的地址。
+    // 从前往后查询。返回元素的下标，-1表示没有。
+    // ！！equals方法要自己实现即Override，不然默认比较对象的地址。
     public int indexOf(Object o) {
         if (o == null) {
             for (int i = 0; i < size; i++)
@@ -324,7 +333,7 @@
         public boolean hasNext() {
             return cursor != size;
         }
-	    // 用于遍历
+        // 用于遍历
         @SuppressWarnings("unchecked")
         public E next() {
             checkForComodification();
@@ -337,7 +346,7 @@
             cursor = i + 1;
             return (E) elementData[lastRet = i];
         }
-	    // 在这里删除
+        // 在这里删除
         public void remove() {
             if (lastRet < 0)
                 throw new IllegalStateException();
@@ -375,7 +384,7 @@
             lastRet = i - 1;
             checkForComodification();
         }
-	    // 不允许在迭代过程中进行非预期的插入、删除等结构性的修改
+        // 不允许在迭代过程中进行非预期的插入、删除等结构性的修改
         final void checkForComodification() {
             if (modCount != expectedModCount)
                 throw new ConcurrentModificationException();
@@ -388,7 +397,7 @@
 向前、向后，增加、修改。
 
 ``` java
-    public ListIterator<E> listIterator(int index) {
+public ListIterator<E> listIterator(int index) {
         if (index < 0 || index > size)
             throw new IndexOutOfBoundsException("Index: "+index);
         return new ListItr(index);
