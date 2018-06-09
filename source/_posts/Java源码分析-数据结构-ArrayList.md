@@ -1,5 +1,5 @@
 ---
-title: Java学习笔记-数据结构-ArrayList
+title: Java学习笔记 - 数据结构 - ArrayList
 data: 2018-04-30 15:39:08
 categories: 
 	- 源码分析
