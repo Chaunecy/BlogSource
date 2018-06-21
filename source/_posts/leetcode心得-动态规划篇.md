@@ -2,7 +2,7 @@
 title: leetcode心得 - 动态规划篇
 date: 2018-04-30 20:14:59
 categories:
-	- Algorithms
+	- 算法
 tags:
     - leetcode
     - 数据结构与算法

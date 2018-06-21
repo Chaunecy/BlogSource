@@ -2,12 +2,12 @@
 title: 二叉树的遍历 - 非递归版Java实现
 date: 2018-04-30 20:07:29
 categories: 
-	- Algorithms
+	- 算法
 tags: 
     - 数据结构与算法
     - Java
 ---
-## TreeNode的定义
+## TreeNode 的定义
 
 ``` java
     public class TreeNode {

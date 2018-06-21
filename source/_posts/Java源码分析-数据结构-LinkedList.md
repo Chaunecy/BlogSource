@@ -36,12 +36,11 @@ tags:
 
 ## 添加元素：增
 
-
-
 ### 添加一个元素到末尾
 
 ``` java
     public boolean add(E e) {
+        // 把新元素添加到末尾
         linkLast(e);
         return true;
     }
@@ -70,7 +69,7 @@ tags:
         else
             linkBefore(element, node(index));
     }
-
+	// 把新的元素放到 index 对应的位置，原来的元素成为新元素的 next。
     void linkBefore(E e, Node<E> succ) {
         // assert succ != null;
         final Node<E> pred = succ.prev;
@@ -84,6 +83,7 @@ tags:
         modCount++;
     }
 
+	// 检查索引是否越界
     private void checkPositionIndex(int index) {
         if (!isPositionIndex(index))
             throw new IndexOutOfBoundsException(outOfBoundsMsg(index));
@@ -93,10 +93,11 @@ tags:
     }
 ```
 
-其中node()函数的实现为
+其中 node 函数的实现为
 
 ``` java
-    Node<E> node(int index) {
+    // 获取取索引为 index 的元素
+	Node<E> node(int index) {
         // assert isElementIndex(index);
         // 离哪头近，就从哪头开始找，但还是很花时间
         if (index < (size >> 1)) {
@@ -116,7 +117,7 @@ tags:
 ### 添加给定的容器内的元素
 
 ``` java
-    // 从链表最后添加新的元素
+    // 添加新的元素，加到链表最后
     public boolean addAll(Collection<? extends E> c) {
         return addAll(size, c);
     }
@@ -163,4 +164,10 @@ tags:
         return true;
     }
 ```
+
+其他还有 addFirst，offerFirst 等众多函数，这里不一一列举。
+
+## 移除元素：删
+
+
 
