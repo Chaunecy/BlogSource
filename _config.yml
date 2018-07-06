@@ -93,8 +93,5 @@ search:
   limit: 10000
 
 
-# post_asset_folder: true
-
-# post_asset_folder: true
 # plugins:
 #   - hexo-math

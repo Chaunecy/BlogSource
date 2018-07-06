@@ -11,122 +11,109 @@ tags:
 
 
 
-## Tomcat下载安装
+## Tomcat 下载安装
 
 
-这是[TomCat下载地址](http://tomcat.apache.org/)，选择你需要的版本安装。
+这是 [TomCat 下载地址](http://tomcat.apache.org/)，选择你需要的版本安装。
 
-我的是windows版tomcat9，解压到任意位置即可（路径名尽量不要有中文）。
+我选择的是 Windows 版 Tomcat 9.0.7，下载完成后解压到任意位置即可（路径名尽量不要有中文）。
 
-其中第4步CATALINA_HOME设置为解压路径。
+> 第 4 步 CATALINA_HOME 应该设置为**解压路径 + Tomcat 的 bin 目录所在文件夹的名字**。
 
 <!-- more -->
 
 ![TomCat环境配置](TomCat与Servlet入门指南\TomCat环境配置.PNG)
 
-完成后一直点击确定，就能保存配置信息。
-然后在任意位置打开命令行（windows系统下），输入startup
+依次完成 1 - 6 所有步骤后，一直点击确定，保存配置信息即可。
+
+然后在任意位置打开命令行（Windows 系统下），输入 `startup`
 
 ![运行TomCat](TomCat与Servlet入门指南\运行TomCat.PNG)
 
-> 如果看不到如上输出，可能是你没有在环境变量中设置**JAVA_HOME**。需要把**JAVA_HOME**加入环境变量，并在Path中加入**%JAVA_HOME%\bin**。
+> 如果看不到如上输出，可能是你没有在环境变量中设置 **JAVA_HOME**。需要把 **JAVA_HOME** 加入环境变量，并在 Path 中加入 **%JAVA_HOME%\bin**。
 
-
-
-打开浏览器，输入[http://localhost:8080/](http://localhost:8080/)，你会看到
+打开浏览器，输入 [http://localhost:8080/](http://localhost:8080/)，你会看到欢迎页面：
 
 ![安装成功](TomCat与Servlet入门指南\安装成功.PNG)
 
-说明你安装成功了。如果看不到这个页面，那就检查一下环境配置信息。还是挺好搞定的。
+说明你安装成功了。如果看不到欢迎页面，那么请检查一下环境变量。
 
 
-## 第一个Servlet程序（IntelliJ IDEA）
+## 第一个 Servlet 程序（IntelliJ IDEA）
 
-### 新建Web Application项目
+### 新建 Web Application 项目
 
-选择**File -> new -> project -> Java Enterprise -> Web Application**
-然后点击**next**，输入项目名，点击**Finish**，创建项目。这里我的项目名是**Teaching**。
+选择 **File -> new -> project -> Java Enterprise -> Web Application**
+然后点击 **next**，输入项目名，点击 **Finish**，创建项目。这里我的项目名是 **Teaching**。
 
 ![TomCat新建项目](TomCat与Servlet入门指南\TomCat新建项目.PNG)
 
-
-如果没有Java Enterprise这一项，请关闭所有项目，选择右下角configure -> plugins，安装tomcat插件
+> 如果没有 Java Enterprise 这一项，请关闭所有项目，选择右下角 configure -> plugins，安装tomcat插件
 
 ![tomcat插件](TomCat与Servlet入门指南\tomcat插件.PNG)
 
-### 在web目录下新建文件夹
+### 在 \web 目录下新建文件夹
 
-一共要创建两个文件夹，都在web目录下，一个是**\classes**，存放编译好的类文件，一个是**\lib**，存放jar包等依赖。
+一共要创建两个文件夹，都在 web 目录下：
+
+- 一个是 **\classes**，存放编译好的类文件；
+- 一个是 **\lib**，存放 jar 包等依赖。
 
 ![TomCat新建项目](TomCat与Servlet入门指南\tomcat创建文件夹.PNG)
 
 ### 配置项目结构
 
-点击左上角**file -> project structure**，或者右上角的
+点击左上角 **file -> project structure**，或者右上角的
 ![tomcat project structure](TomCat与Servlet入门指南\tomcat project structure.PNG)
 
-然后修改class文件导出的路径
+然后修改 class 文件导出的路径
 ![tomcat classes](TomCat与Servlet入门指南\tomcat classes.PNG)
 
-然后**Apply**。
+然后 **Apply**。
 
-选择**Dependencies**，配置类库**lib**。
-点击右边的**+**号，选择“**JARs or directiories**”，然后选择刚才新建的/Teaching/web/**lib**文件夹。
+选择 **Dependencies**，配置类库 **lib**。
+点击右边的 **+** 号，选择“**JARs or directiories**”，然后选择刚才新建的 /Teaching/web/**lib**文件夹。
 ![tomcat lib](TomCat与Servlet入门指南\tomcat lib.PNG)
 
-点击**OK -> Apply**，就可以关闭Project Structure窗口了。
+依次点击 **OK -> Apply**，就完配置了。
 
+### 在 IDE 中配置 TomCat
 
-
-### 配置IDE中的TomCat
-
-选择右上角的tomcat，点击后选择**edit configurations**。
+选择右上角的 Tomcat，点击后选择 **edit configurations**。
 
 ![tomcat 配置tomcat](TomCat与Servlet入门指南\tomcat 配置tomcat.PNG)
 
-点击左上角的**+**，在列表中选择Tomcat Server（可能会因为太多被折叠起来，不会直接显示）
+点击左上角的 **+**，在列表中选择 Tomcat Server（因为排在后面，可能会被折叠起来，不会直接显示）
 ![tomcat 配置1](TomCat与Servlet入门指南\tomcat 配置1.PNG)
 
-默认会勾选**After launch**，这个是在运行Tomcat后自动打开浏览器，觉得不需要可以去掉。
+> 默认会勾选 **After launch**，即在运行 Tomcat 后自动打开浏览器，觉得不需要可以去掉。
 
-最上方的**Name**可以随便改。
+最上方的 **Name** 可以随便改。
 
-> 有一点图上没有显示出来，就是点击**Configure...**配置Tomcat，Tomcat的路径会由IDE帮你找到，你只要点击**OK**就好。
+> 有一点图上没有显示出来：点击 **Configure...** 配置 Application Server，Tomcat 的路径会由 IDE 帮你找到，你只要点击 **OK** 就好。
 
-还有就是，如果下方用红字显示你的**artifact**没有弄好，你只须点击右边的**Fix**按钮，跟着IDE的指示走就好。
+还有就是，如果底部用红字显示类似“你的 **artifact** 没有配置好”的错误信息，你只须点击右边的 **Fix** 按钮（图上未显示），跟着 IDE 的指示走就好。
 
-
-
-****
-
-
-
-然后把选项卡切到**Deployment**上
+然后把选项卡切到 **Deployment** 上
 
 ![tomcat上下文](TomCat与Servlet入门指南\tomcat上下文.PNG)
 
-这里你可以按自己的喜好填，之后运行程序的时候，在浏览器打开http://localhost:8080/your-input/yout-page， 就能访问你的程序了。
-这里我填的是**/webapp**，填完点击**OK**退出。
-
-
-
-***
-
-
+这里你可以按自己的喜好填，之后运行程序的时候，在浏览器打开 http://localhost:8080/your-input/yout-page， 就能访问你的程序了。
+这里我填的是 **/webapp**，填完点击 **OK** 退出。
 
 ### 小试身手
 
-现在我们配置好了Tomcat，可以点击右上角的绿色三角形运行了。如果你之前勾选了**After launch**，那么点击绿色三角形运行后，会自动打开默认浏览器，并显示
+现在我们配置好了 Tomcat，可以点击右上角的绿色三角形运行了。如果你之前勾选了**After launch**，那么点击绿色三角形（run）运行后，会自动打开默认浏览器，并显示
 
 ``` html
 $END$
 ```
 
-这是输出内容是由**/web**目录下的**index.jsp**文件所决定的。你可以任意修改这个文件。
+这是输出内容是由 **/web** 目录下的 **index.jsp** 文件所决定的。你可以任意修改这个文件。
 
 ### Hello World
 
-进入**/src**目录，新建/myservlet包，在/myservlet包下新建java文件：MyServlet.java。
+进入 **/src** 目录，新建 /myservlet 包（名字可以任意起），在 /myservlet 包下新建 java 文件：MyServlet.java。
 
 ``` java
 package myservlet;
@@ -139,7 +126,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
 
-// 也可以@WebServlet("/mypage")，效果一样；或者修改web.xml文件
+// 也可以@WebServlet("/mypage")，效果一样；或者修改web.xml文件，见下方
 @WebServlet(name = "useless", urlPatterns = {"/mypage"})
 public class MyServlet extends HttpServlet {
 
@@ -170,20 +157,22 @@ public class MyServlet extends HttpServlet {
     <servlet-mapping>
         <servlet-name>myservlet</servlet-name>
         <!-- 访问http://localhost:8080/webapp/mypage -->
-        <!-- webapp 是我填写的tomcat上下文 -->
+        <!-- webapp 是我填写的 Tomcat 上下文 -->
         <url-pattern>/mypage</url-pattern>
     </servlet-mapping>
     <!-- 结束 -->
 </web-app>
 ```
 
-在**/web/WEB-INF/web.xml**文件中添加以上代码，放到&lt;**web-app>**标签之间。
+在 **/web/WEB-INF/web.xml** 文件中添加以上代码，放到 &lt;**web-app>** 标签之间。
 
-然后点击运行Tomcat，进入浏览器，输入http://localhost:8080/webapp/mypage，看看会输出什么。
+然后点击运行 Tomcat，进入浏览器，输入 http://localhost:8080/webapp/mypage，看看会输出什么（自然是 Hello World）。
 
 ## 结语
 
-Tomcat与Servlet的入门介绍就到此结束了，下面是我的一些代码，权当练习入门指南。所有代码都在**myservlet**包下。
+Tomcat 与 Servlet 的入门介绍就到此结束了，下面是我的一些代码，权当练习。
+
+所有代码都在 **myservlet** 包下。
 
 ### 显示日期时间
 
@@ -235,7 +224,7 @@ public class CalendarServlet extends HttpServlet {
 ```
 
 
-### 处理HttpServletRequest请求
+### 处理 HttpServletRequest 请求
 
 ``` java
 package myservlet;
@@ -403,7 +392,6 @@ public class LoginServlet extends HttpServlet {
         out.close();
     }
 }
-
 ```
 
 
