@@ -65,3 +65,75 @@ leancloud_visitors:
    ```
 
 3. 重新部署 Hexo，即可生效。
+
+## 评论系统
+
+### 使用 Disqus
+
+到 Disqus 官网 注册账号，取一个全网惟一的 shortname，后面的 `Website URL` 填写你的博客网址全称。
+
+在 NexT 的配置文件中添加 shortname 即可。
+
+``` yaml
+# Disqus
+disqus:
+  enable: false
+  shortname: # your shortname
+  count: true
+```
+
+
+
+不足之处是必须要有 Facebook、Twitter 或者 Google Plus 账号才能评论。
+
+### Valine
+
+同样是在 LeanCloud 托管数据。新建应用，复制 App ID 和 App Key。
+
+``` yaml
+# Valine.
+# You can get your appid and appkey from https://leancloud.cn
+# more info please open https://valine.js.org
+valine:
+  enable: false
+  appid: # your leancloud application appid
+  appkey: # your leancloud application appkey
+  notify: false # mail notifier , https://github.com/xCss/Valine/wiki
+  verify: false # Verification code
+  placeholder: # comment box placeholder
+  avatar: mm # gravatar style
+  guest_info: nick,mail,link # custom comment header
+  pageSize: 10 # pagination size
+```
+
+好处：不用登录，快速评论。
+
+坏处：评论质量可能不高。
+
+### Gitment
+
+在 [此处](https://github.com/settings/applications/new) 新建应用，生成 Client ID 和 Client sceret（之后要用）。
+
+在 NexT 的配置文件中补全下述内容：
+
+``` yaml
+# Gitment
+# Introduction: https://imsun.net/posts/gitment-introduction/
+# You can get your Github ID from https://api.github.com/users/<Github username>
+gitment:
+  enable: true
+  mint: true # RECOMMEND, A mint on Gitment, to support count, language and proxy_gateway
+  count: true # Show comments count in post meta area
+  lazy: false # Comments lazy loading with a button
+  cleanly: true # Hide 'Powered by ...' on footer, and more
+  language: # Force language, or auto switch by theme
+  github_user: # MUST HAVE, Your Github ID
+  github_repo: # MUST HAVE, The repo you use to store Gitment comments
+  client_id: # MUST HAVE, Github client id for the Gitment
+  client_secret: # EITHER this or proxy_gateway, Github access secret token for the Gitment
+  proxy_gateway: # Address of api proxy, See: https://github.com/aimingoo/intersect
+  redirect_protocol: # Protocol of redirect_uri with force_redirect_protocol when mint enabled
+```
+
+> 可能会出现 Error: validation failed 错误，这是因为文章 id 长度超过了 50 个字符。把 \themes\next\layout\_third-party\comments\gitment.swig 文件中的 id: window.location.pathname 改为 id: '{{ page.title }}'，即可奏效。
+
