@@ -1,5 +1,5 @@
 ---
-title: 二叉树的遍历 - 非递归版Java实现
+title: 二叉树的遍历 - 非递归版 Java 实现
 date: 2018-04-30 20:07:29
 categories: 
 	- 算法

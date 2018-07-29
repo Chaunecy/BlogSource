@@ -1,5 +1,5 @@
 ---
-title: leetcode心得 - 动态规划篇
+title: leetcode 心得 - 动态规划篇
 date: 2018-04-30 20:14:59
 categories:
 	- 算法
