@@ -5,7 +5,8 @@ categories:
 	- 学习笔记
 tags:
 	- 学习笔记
-	- JavaScrpit
+	- 编程语言
+	- JavaScript
 	- Professional JavaScript for Web Developers
 ---
 
