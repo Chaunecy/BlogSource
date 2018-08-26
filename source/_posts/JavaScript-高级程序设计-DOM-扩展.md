@@ -10,7 +10,7 @@ tags:
 	- Professional JavaScript for Web Developers
 ---
 
-##　选择符 API
+## 选择符 API
 
 众多　JavaScript 库中最常用的一项功能，就是根据 CSS 选择符选择与某个模式匹配的 DOM 元素。实际上，jQuery 的核心就是通过 CSS 选择符查询 DOM 文档取得元素的引用。
 
