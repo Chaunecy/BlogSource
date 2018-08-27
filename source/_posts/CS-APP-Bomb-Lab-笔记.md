@@ -26,6 +26,8 @@ objdump -d bomb > bomb.txt  # 导出源代码到 bomb.txt 文件
 
 用到的 gdb 命令及介绍
 
+<!-- more -->
+
 ```powershell
 break function_name # 在函数入口处设置断点
 break *0x4010b0     # 在此地址处设置断点
@@ -759,4 +761,288 @@ addr1        addr2        addr3        addr4        addr5        addr6        0
 
 ## secret_phase：递归与比较
 
-稍后再写
+> secret_phase 的进入参考了 [小土刀](https://wdxtub.com/2016/04/16/thick-csapp-lab-2/) 的博客。
+
+完成 phase_6 后，程序就结束了，但是，看一下程序“源代码”，发现了这么一行注释：
+
+```  
+    /* Wow, they got it!  But isn't something... missing?  Perhaps
+     * something they overlooked?  Mua ha ha ha ha! */
+```
+
+然后查找汇编源代码，发现有 `secret_phase` 这么一个函数，在 `phase_defused` 函数中被调用。
+
+先看一下 `phase_defused` 的代码：
+
+```assembly
+Dump of assembler code for function phase_defused:
+   0x00000000004015c4 <+0>:     sub    $0x78,%rsp
+   0x00000000004015c8 <+4>:     mov    %fs:0x28,%rax
+   0x00000000004015d1 <+13>:    mov    %rax,0x68(%rsp)
+   0x00000000004015d6 <+18>:    xor    %eax,%eax
+   # 过了 6 关了没，没有就直接结束了
+   0x00000000004015d8 <+20>:    cmpl   $0x6,0x202181(%rip)        # 0x603760 <num_input_strings>
+   0x00000000004015df <+27>:    jne    0x40163f <phase_defused+123>
+   0x00000000004015e1 <+29>:    lea    0x10(%rsp),%r8
+   0x00000000004015e6 <+34>:    lea    0xc(%rsp),%rcx
+   0x00000000004015eb <+39>:    lea    0x8(%rsp),%rdx
+   # 多么熟悉的操作！！
+   0x00000000004015f0 <+44>:    mov    $0x402619,%esi
+   0x00000000004015f5 <+49>:    mov    $0x603870,%edi
+   0x00000000004015fa <+54>:    callq  0x400bf0 <__isoc99_sscanf@plt>
+   0x00000000004015ff <+59>:    cmp    $0x3,%eax
+   0x0000000000401602 <+62>:    jne    0x401635 <phase_defused+113>
+   0x0000000000401604 <+64>:    mov    $0x402622,%esi
+   0x0000000000401609 <+69>:    lea    0x10(%rsp),%rdi
+   0x000000000040160e <+74>:    callq  0x401338 <strings_not_equal>
+   0x0000000000401613 <+79>:    test   %eax,%eax
+   # 如果字符串不一样，就结束了
+   0x0000000000401615 <+81>:    jne    0x401635 <phase_defused+113>
+   # 进入正戏！
+   0x0000000000401617 <+83>:    mov    $0x4024f8,%edi
+   0x000000000040161c <+88>:    callq  0x400b10 <puts@plt>
+   0x0000000000401621 <+93>:    mov    $0x402520,%edi
+   0x0000000000401626 <+98>:    callq  0x400b10 <puts@plt>
+   0x000000000040162b <+103>:   mov    $0x0,%eax
+   0x0000000000401630 <+108>:   callq  0x401242 <secret_phase>
+   0x0000000000401635 <+113>:   mov    $0x402558,%edi
+   0x000000000040163a <+118>:   callq  0x400b10 <puts@plt>
+   0x000000000040163f <+123>:   mov    0x68(%rsp),%rax
+   0x0000000000401644 <+128>:   xor    %fs:0x28,%rax
+   0x000000000040164d <+137>:   je     0x401654 <phase_defused+144>
+   0x000000000040164f <+139>:   callq  0x400b30 <__stack_chk_fail@plt>
+   0x0000000000401654 <+144>:   add    $0x78,%rsp
+   0x0000000000401658 <+148>:   retq   
+End of assembler dump.
+```
+
+看到那熟悉的操作了吗？下面来看看它们存储的内容是什么：
+
+```shell
+# 这里是输入格式
+(gdb) x/s $esi
+0x402619:	"%d %d %s"
+
+# 这里是读入输入内容，这里我已经完成了，所以是以下结果
+# 根据 "7 0" 可以看出是第 4 关
+(gdb) x/s $edi
+0x603870 <input_strings+240>:	"7 0 DrEvil"
+
+# 以下可以跳过
+(gdb) stepi
+0x0000000000400bf0 in __isoc99_sscanf@plt ()
+(gdb) next
+Single stepping until exit from function __isoc99_sscanf@plt,
+which has no line number information.
+__isoc99_sscanf (s=0x603870 <input_strings+240> "7 0 DrEvil", format=0x402619 "%d %d %s") at isoc99_sscanf.c:26
+26	isoc99_sscanf.c: 没有那个文件或目录.
+(gdb) next
+30	in isoc99_sscanf.c
+(gdb) next
+31	in isoc99_sscanf.c
+(gdb) next
+30	in isoc99_sscanf.c
+(gdb) next
+31	in isoc99_sscanf.c
+(gdb) next
+35	in isoc99_sscanf.c
+(gdb) next
+0x00000000004015ff in phase_defused ()
+(gdb) stepi 3
+0x0000000000401609 in phase_defused ()
+
+# 下面要进行字符串比较了
+# $esi 是被用于比较的，$rsp + 0x10 存储的是你的输入。
+(gdb) x/s $esi
+0x402622:	"DrEvil"
+(gdb) print (char *) ($rsp + 0x10)
+$29 = 0x7fffffffdcf0 "DrEvil"
+```
+
+> 至于为什么在第四关输入了 3 个参数而没有引发 boom，可能是因为 __isoc99_sscanf 函数有关吧。
+>
+> phase_4 中 %edi 用于存储输入参数。
+
+接下来就是进入 secret_phase 的代码了，先看看其中的地址存储了什么：
+
+```shell
+(gdb) x/s 0x4024f8
+0x4024f8:	"Curses, you've found the secret phase!"
+(gdb) x/s 0x402520
+0x402520:	"But finding it and solving it are quite different..."
+(gdb) x/s 0x402558
+0x402558:	"Congratulations! You've defused the bomb!"
+```
+
+嗯，没什么有价值的东西。直接看 `secret_phase` 吧：
+
+```assembly
+# 就是上面的挑衅
+Curses, you've found the secret phase!
+But finding it and solving it are quite different...
+
+Breakpoint 7, 0x0000000000401242 in secret_phase ()
+(gdb) disas
+Dump of assembler code for function secret_phase:
+=> 0x0000000000401242 <+0>:     push   %rbx
+   0x0000000000401243 <+1>:     callq  0x40149e <read_line>
+   0x0000000000401248 <+6>:     mov    $0xa,%edx
+   0x000000000040124d <+11>:    mov    $0x0,%esi
+   0x0000000000401252 <+16>:    mov    %rax,%rdi
+   0x0000000000401255 <+19>:    callq  0x400bd0 <strtol@plt>
+   0x000000000040125a <+24>:    mov    %rax,%rbx
+   0x000000000040125d <+27>:    lea    -0x1(%rax),%eax
+   0x0000000000401260 <+30>:    cmp    $0x3e8,%eax
+   0x0000000000401265 <+35>:    jbe    0x40126c <secret_phase+42>
+   0x0000000000401267 <+37>:    callq  0x40143a <explode_bomb>
+   0x000000000040126c <+42>:    mov    %ebx,%esi
+   0x000000000040126e <+44>:    mov    $0x6030f0,%edi
+   0x0000000000401273 <+49>:    callq  0x401204 <fun7>
+   0x0000000000401278 <+54>:    cmp    $0x2,%eax
+   0x000000000040127b <+57>:    je     0x401282 <secret_phase+64>
+   0x000000000040127d <+59>:    callq  0x40143a <explode_bomb>
+   0x0000000000401282 <+64>:    mov    $0x402438,%edi
+   0x0000000000401287 <+69>:    callq  0x400b10 <puts@plt>
+   0x000000000040128c <+74>:    callq  0x4015c4 <phase_defused>
+   0x0000000000401291 <+79>:    pop    %rbx
+   0x0000000000401292 <+80>:    retq   
+End of assembler dump.
+```
+
+看到函数这么短，是不是松了一口气？先别急，看到 `callq <fun7>` 这一行了没？大头在这里呢！
+
+先看秘密关卡的代码逻辑，它会先读取一行输入，把输入的字符串转换成 10 进制的长整型，然后这个数字还要减 1 后与 0x3e8 进行比较。
+
+然后是关键部分：
+
+```assembly
+   0x000000000040126c <+42>:    mov    %ebx,%esi
+   0x000000000040126e <+44>:    mov    $0x6030f0,%edi
+   0x0000000000401273 <+49>:    callq  0x401204 <fun7>
+   0x0000000000401278 <+54>:    cmp    $0x2,%eax
+   0x000000000040127b <+57>:    je     0x401282 <secret_phase+64>
+   0x000000000040127d <+59>:    callq  0x40143a <explode_bomb>
+```
+
+在 `fun7` 入口处设置断点，查看寄存器内的值：
+
+```assembly
+(gdb) print *(int *) $edi
+$36 = 36
+
+# 这是是我的输入，转化成长整型后
+(gdb) print $esi
+$37 = 22
+```
+
+这样，我们就知道，在输入值为 `$esi` 的情况下 `fun7` 的返回值 `$eax` 要为 2，才能通过秘密关卡。
+
+再看 `fun7` 中进行了什么操作，才能使得 `%eax` 的值被设置为 2。
+
+```assembly
+Dump of assembler code for function fun7:
+=> 0x0000000000401204 <+0>:     sub    $0x8,%rsp
+   0x0000000000401208 <+4>:     test   %rdi,%rdi
+   0x000000000040120b <+7>:     je     0x401238 <fun7+52>
+   0x000000000040120d <+9>:     mov    (%rdi),%edx
+   0x000000000040120f <+11>:    cmp    %esi,%edx
+   0x0000000000401211 <+13>:    jle    0x401220 <fun7+28>
+   0x0000000000401213 <+15>:    mov    0x8(%rdi),%rdi
+   0x0000000000401217 <+19>:    callq  0x401204 <fun7>
+   0x000000000040121c <+24>:    add    %eax,%eax
+   0x000000000040121e <+26>:    jmp    0x40123d <fun7+57>
+   0x0000000000401220 <+28>:    mov    $0x0,%eax
+   0x0000000000401225 <+33>:    cmp    %esi,%edx
+   0x0000000000401227 <+35>:    je     0x40123d <fun7+57>
+   0x0000000000401229 <+37>:    mov    0x10(%rdi),%rdi
+   0x000000000040122d <+41>:    callq  0x401204 <fun7>
+   0x0000000000401232 <+46>:    lea    0x1(%rax,%rax,1),%eax
+   0x0000000000401236 <+50>:    jmp    0x40123d <fun7+57>
+   0x0000000000401238 <+52>:    mov    $0xffffffff,%eax
+   0x000000000040123d <+57>:    add    $0x8,%rsp
+   0x0000000000401241 <+61>:    retq   
+End of assembler dump.
+```
+
+又是一个递归函数，这里我把它转化成伪代码的样式，看起来轻松一些：
+
+```pseudocode
+fun7($edi, $esi):
+	# $esi <- my input.
+	
+	$edx <- ($rdi)
+	
+	# my input is less than $edx
+	if $edx > $esi
+		# number 1
+		$rdi <- M[$rdi + 0x8]
+		call fun7($edi, $esi)
+		$eax *= 2
+	else
+		$eax <- 0
+		# number 2
+		if $esi == $edx
+			return
+		else # number 3
+			$rdi <- M[$rdi + 0x10]
+			call fun7($edi, $esi)
+			$eax = $rax * 2 + 1
+```
+
+> `M[rA]` 表示取地址 `rA` 中存放的值。
+
+通过上述伪代码，我们知道，当输入值比较大时，会更新 `$rdi` 中存放的地址，并进入下一层递归，结束递归后，对 `$eax` 的值进行加倍操作；当输入值比较小时，也会更新 `$rdi` 中存放的地址，并进入下一层递归，结束递归后，对 `$eax` 的值进行加倍后再 +1 操作；只有当输入值 == `$rdi` 地址中存放的值时，才会结束递归，并为 `secret_phase` 返回 `$eax`。
+
+那么，答案就很简单了，只要我们先进入分支 `number 1`，再进入分支 `number 3`，最后进入分支 `number 2`，就能依次得到：
+
+```markdown
+$eax <- 0                      # number 2
+$eax <- $rax + $rax + 1 = 1    # number 3
+$eax <= $eax + $eax = 2        # number 1
+```
+
+只要找到这样的值，它在进入 `number 2` 分支时与当时的 `M[$rdi]` 相同，即可通过此关！
+
+最终答案即是：
+
+```assembly
+22
+```
+
+> 每次更新 `$rdi` 时，都重新计算了它的地址，所以没有计算的捷径，只能依次计算。使用纸笔记录下来中间结果会有很大帮助。
+
+## 结语
+
+Bomb Lab 到此就告一段落了，我们最终粉碎了邪恶博士的阴谋（捂脸）！
+
+总得来说，十分贴合教材内容，关于跳转、switch、函数调用、递归调用都有所涉及，是一个不可多得的锻炼的机会。
+
+```shell
+(gdb) run
+Starting program: /home/cwwang/文档/csapp/lab2/bomb/bomb ./sol.txt 
+Welcome to my fiendish little bomb. You have 6 phases with
+which to blow yourself up. Have a nice day!
+Phase 1 defused. How about the next one?
+That's number 2.  Keep going!
+Halfway there!
+So you got that one.  Try this one.
+Good work!  On to the next...
+Curses, you've found the secret phase!
+But finding it and solving it are quite different...
+Wow! You've defused the secret stage!
+Congratulations! You've defused the bomb!
+[Inferior 1 (process 62328) exited normally]
+```
+
+以下是所有输入，放置在 `sol.txt` 文件中：
+
+```markdown
+Border relations with Canada have never been better.
+1 2 4 8 16 32
+1 311
+7 0 DrEvil
+ionefg
+4 3 2 1 6 5
+22
+```
+
