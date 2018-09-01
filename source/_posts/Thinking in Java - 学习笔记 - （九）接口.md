@@ -1,10 +1,11 @@
 ---
 title: Thinking in Java - 学习笔记 - （九）接口
 date: 2018-05-01 19:03:46
-tags:
+categories:
+	- 学习笔记
+tags: 
 	- Thinking in Java
 	- Java
-	- 学习笔记
 ---
 
 

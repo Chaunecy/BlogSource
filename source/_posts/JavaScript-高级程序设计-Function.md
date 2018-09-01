@@ -4,7 +4,6 @@ date: 2018-07-29 15:38:10
 categories:
 	- 学习笔记
 tags:
-	- 学习笔记
 	- 编程语言
 	- JavaScript
 	- Professional JavaScript for Web Developers

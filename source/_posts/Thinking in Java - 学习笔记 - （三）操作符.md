@@ -1,10 +1,11 @@
 ---
 title: Thinking in Java - 学习笔记 - （三）操作符
 date: 2018-05-01 17:10:32
-tags:
-    - Thinking in Java
-    - Java
-    - 学习笔记
+categories:
+	- 学习笔记
+tags: 
+	- Thinking in Java
+	- Java
 ---
 
 > 在最底层，Java中的数据是通过使用操作符来操作的。

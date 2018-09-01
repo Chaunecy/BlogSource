@@ -1,15 +1,15 @@
 ---
 title: Java学习笔记 - 数据结构 - ArrayList
-data: 2018-04-30 15:39:08
+date: 2018-04-30 15:39:08
 categories: 
 	- 源码分析
 tags: 
-    - 数据结构与算法
-    - Java
+	- 数据结构与算法
+	- Java
 ---
-## 怎么理解ArrayList
+## 怎么理解 ArrayList
 
-一个实现**List**接口的可扩展的数组（Resizable-array）。与**Vector**大致上相同，但是不保证线程安全。
+一个实现 **List** 接口的可扩展的数组（Resizable-array）。与 **Vector** 大致上相同，但是不保证线程安全。
 
 ## 构造函数
 

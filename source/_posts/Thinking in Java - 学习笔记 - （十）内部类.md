@@ -1,10 +1,11 @@
 ---
 title: Thinking in Java - 学习笔记 - （十）内部类
 date: 2018-05-01 19:11:59
-tags:
+categories:
+	- 学习笔记
+tags: 
 	- Thinking in Java
 	- Java
-	- 学习笔记
 ---
 
 **可以将一个类的定义放在另一个类的内部，这就是内部类。**

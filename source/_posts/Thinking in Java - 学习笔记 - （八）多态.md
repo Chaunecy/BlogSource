@@ -1,10 +1,11 @@
 ---
 title: Thinking in Java - 学习笔记 - （八）多态
 date: 2018-05-01 18:58:14
+categories:
+	- 学习笔记
 tags: 
 	- Thinking in Java
 	- Java
-	- 学习笔记
 ---
 
 **在面向对象的程序设计语言中，多态是继数据抽象和继承之后的第三种基本特征。**

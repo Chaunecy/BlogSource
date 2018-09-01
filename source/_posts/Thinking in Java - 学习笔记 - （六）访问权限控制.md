@@ -1,10 +1,11 @@
 ---
 title: Thinking in Java - 学习笔记 - （六）访问权限控制
 date: 2018-05-01 18:41:55
-tags:
+categories:
+	- 学习笔记
+tags: 
 	- Thinking in Java
 	- Java
-	- 学习笔记
 ---
 
 **访问控制（或隐藏具体实现）与“最初的实现并不恰当”有关。**

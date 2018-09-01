@@ -1,9 +1,11 @@
 ---
 title: Thinking in Java - 学习笔记 - （二）一切都是对象
 date: 2018-04-30 20:39:24
-tags:
-    - Thinking in Java
-    - 学习笔记
+categories:
+	- 学习笔记
+tags: 
+	- Thinking in Java
+	- Java
 ---
 
 > 尽管Java是基于C++的，但是相比之下，Java是一种更纯粹”的面向对象程序设计语言。

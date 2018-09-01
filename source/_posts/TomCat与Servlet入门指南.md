@@ -9,8 +9,6 @@ tags:
 	- Tomcat
 ---
 
-
-
 ## Tomcat 下载安装
 
 
@@ -304,8 +302,6 @@ public class RequestDemo1 extends HttpServlet {
 
 }
 ```
-
-
 
 ### 处理用户登录
 

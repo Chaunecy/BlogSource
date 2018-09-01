@@ -1,10 +1,11 @@
 ---
 title: Thinking in Java - 学习笔记 - （十六）数组
 date: 2018-05-02 14:58:01
-tags:
+categories:
+	- 学习笔记
+tags: 
 	- Thinking in Java
 	- Java
-	- 学习笔记
 ---
 
 

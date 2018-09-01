@@ -1,10 +1,11 @@
 ---
 title: Thinking in Java - 学习笔记 - （十二）通过异常处理错误
 date: 2018-05-02 14:23:14
-tags:
+categories:
+	- 学习笔记
+tags: 
 	- Thinking in Java
 	- Java
-	- 学习笔记
 ---
 
 **Java的基本理念是结构不佳的代码不能运行。**
