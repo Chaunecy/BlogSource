@@ -28,6 +28,17 @@ tags:
 
 <!-- more -->
 
+正确性检验：
+
+```c
+$ make clean
+$ make
+$ make testXX
+$ make rtestXX
+```
+
+比较 `tsh` 与 `tshref` 的输出，一致则正确。共 16 个 `trace` 文件，全部通过得满分 `16 * 5 = 80` 分。
+
 ## eval
 
 在 CS:APP2e 中文教材 503 页有 `eval` 函数的原型。但是书上的代码不能完全满足我们的要求，所以要进行修改。
@@ -253,7 +264,25 @@ void sigtstp_handler(int sig)
 
 使用 `while` 而非 `if` 解决信号阻塞与不会排队等待的情况。
 
-根据 P496 页的说明确定相应处理方式。
+`waitpid` 函数说明：
+
+```c
+#include <sys/types.h>
+#include <sys/wait.h>
+
+pid_t waitpid(pid_t pid, int *status, int options);
+```
+
+1. `pid = -1` 时等待集合是父进程的所有子进程。
+2. 对 `options` 参数的设置：
+   - WNOHANG | WUNTRACED：立即返回，如果没有子进程已停止或已终止，返回 0，否则返回已停止或已终止的子进程 PID。
+3. 检查已回收子进程的退出状态：
+   - WIFEXITED(status)：通过 `exit` 函数或 `return` 返回时为真，并设置 `WEXITSTATUS(status)`。
+   - WIFSIGNALED(status)：子进程因为未被捕获的信号而终止时为真，并设置 `WTERMSIG(status)`。
+   - WIFSTOPED(status)：引进返回的子进程当前是被停止时为真，并设置 `WSTOPSIG(status)`。
+4. 错误条件：
+   - 如果没有子进程，`waitpid` 返回 -1，并设置 `errno = ECHILD`。
+   - 如果 `waitpid` 被一个信号中断，那么返回 -1，并设置 `errno = EINTR`。
 
 ```c
 /* 
@@ -288,3 +317,6 @@ void sigchld_handler(int sig)
 }
 ```
 
+## 结语
+
+这个 lab 算是比较棘手，在 `waitfg` 函数消耗了比较多的时间。bug 是：有多个后台任务且其中一个先结束时，会发生 `waitpid error`，在 `waitfg` 函数中加入 `pid == 0` 的判断后就可以了，之后即使去掉 `pid == 0` 的判断也可以跑通，暂时不知道原因是什么。
