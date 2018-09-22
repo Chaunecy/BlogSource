@@ -2,7 +2,7 @@
 title: VMware 安装 Ubuntu 教程
 date: 2018-09-04 13:43:29
 categories:
-	- 程序人生
+	- 编程的路
 tags:
 	- 教程
 	- Ubuntu

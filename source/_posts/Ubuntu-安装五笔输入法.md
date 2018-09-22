@@ -2,7 +2,7 @@
 title: Ubuntu 安装五笔输入法
 date: 2018-09-12 12:46:18
 categories:
-	- 程序人生
+	- 编程的路
 tags:
 	- 教程
 	- Ubuntu
