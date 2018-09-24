@@ -1,5 +1,5 @@
 ---
-title: 让 Intellij 支持 LaTeX
+title: 让 IntelliJ 支持 LaTeX
 date: 2018-09-22 10:18:19
 categories:
 	- 编程的路
@@ -23,7 +23,7 @@ tags:
 - 重启 IntelliJ IDEA 以完成插件的安装。
 - 在欢迎页菜单点击 `Create New Project` 或者在已打开的项目中选择 `File - New - Project`，选中左侧列表中的 `LaTeX` 并点击 `next`。为你的项目指定一个项目名与路径。一个项目可以包含多个 LaTeX 文件。
 - 新建完成后，`src` 目录下有一个 `main.tex` 文件。所有的 LaTeX 文件都要放在 `src` 目录下。
-  ![latex](让-Intellij-支持-LaTeX/latex.PNG)
+  ![latex](让-IntelliJ-支持-LaTeX/latex.PNG)
 - 打开 `.tex` 文件，在 `\begin{document}` 和 `\end{document}` 之间写入任意字符串，点击行号右侧的按钮 `Run`，耐心等待，如果一段时间后在 `out` 目录下出现 `.pdf` 文件，那么你可以关闭这个教程了。
 - 如果出现错误，类似于 `Error running 'Exercise01': Cannot run program "pdflatex`，那么应该是安装完 `LaTeX` 后还没有重启计算机，重启一下就好了。
 - 如果是其他错误，因尚未遇到，不能给出解决方案。
